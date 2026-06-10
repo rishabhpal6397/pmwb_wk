@@ -18,6 +18,8 @@ const PsrPage = () => {
     updateProjectSize,
     getTotalCumulativeEffort,
     getTotalPlannedEffort,
+    getResourceTotalsByType,
+    getResourceTotalsByLevel,
   } = useAppStore();
 
   const [location, setLocation] = useState('offshore'); // 'offshore' or 'onsite'
@@ -28,6 +30,51 @@ const PsrPage = () => {
     return (((planned - actual) / planned) * 100).toFixed(1);
   };
 
+  const resourceTypeTotals = useMemo(() => getResourceTotalsByType(), [resources, getResourceTotalsByType]);
+  const resourceLevelTotals = useMemo(() => getResourceTotalsByLevel(), [resources, getResourceTotalsByLevel]);
+
+  const typeToCategoryMap = {
+    SEG: 'projectTeam',
+    CTT: 'testingTeam',
+    GRA: 'graphics',
+    TWR: 'techWriter',
+    QAG: 'qa',
+    ORG: 'organizational',
+    PMS: 'pm',
+    ARC: 'architecture',
+    BAS: 'businessAnalyst',
+    PMO: 'pmo',
+  };
+
+  const currentPeriodByCategory = useMemo(() => {
+    const result = {};
+    Object.entries(typeToCategoryMap).forEach(([type, category]) => {
+      const totals = resourceTypeTotals[type] || { offshorePlanned: 0, offshoreActual: 0, onsitePlanned: 0, onsiteActual: 0 };
+      result[category] = {
+        planned: location === 'offshore' ? totals.offshorePlanned : totals.onsitePlanned,
+        actual: location === 'offshore' ? totals.offshoreActual : totals.onsiteActual,
+      };
+    });
+    return result;
+  }, [resourceTypeTotals, location]);
+
+  // For resource levels, compute current planned/actual for each level
+  const currentPeriodByLevel = useMemo(() => {
+    const levels = ['L1','L2','L3','L4','L5','L6','L7','L8','L9','L10'];
+    const result = {};
+    levels.forEach(level => {
+      const totals = resourceLevelTotals[level] || { offshorePlanned: 0, offshoreActual: 0, onsitePlanned: 0, onsiteActual: 0 };
+      result[level] = {
+        planned: location === 'offshore' ? totals.offshorePlanned : totals.onsitePlanned,
+        actual: location === 'offshore' ? totals.offshoreActual : totals.onsiteActual,
+      };
+    });
+    return result;
+  }, [resourceLevelTotals, location]);
+
+
+  const typeSummary = useMemo(() => getResourceTotalsByType(), [resources, getResourceTotalsByType]);
+  const levelSummary = useMemo(() => getResourceTotalsByLevel(), [resources, getResourceTotalsByLevel]);
   // Current efforts based on location
   const approvedEffort = useMemo(() => {
     return (projectInfo.estimatedEffort * 0.9).toFixed(2)});
@@ -44,21 +91,23 @@ const PsrPage = () => {
         data[level] = {
           uptoLastPlanned: levelObj.uptoLastPlanned ?? 0,
           uptoLastActual: levelObj.uptoLastActual ?? 0,
-          currentPlanned: levelObj.currentPlanned ?? 0,
-          currentActual: levelObj.currentActual ?? 0,
-          cumulativePlanned: (levelObj.uptoLastPlanned ?? 0) + (levelObj.currentPlanned ?? 0),
-          cumulativeActual: (levelObj.uptoLastActual ?? 0) + (levelObj.currentActual ?? 0),
+          currentPlanned: currentPeriodByLevel[level]?.planned ?? 0,
+          currentActual: currentPeriodByLevel[level]?.actual ?? 0,
+          cumulativePlanned: (levelObj.uptoLastPlanned ?? 0) + (currentPeriodByLevel[level]?.planned ?? 0),
+          cumulativeActual: (levelObj.uptoLastActual ?? 0) + (currentPeriodByLevel[level]?.actual ?? 0),
         };
       } else {
         data[level] = {
           uptoLastPlanned: 0, uptoLastActual: 0,
-          currentPlanned: 0, currentActual: 0,
-          cumulativePlanned: 0, cumulativeActual: 0,
+          currentPlanned: currentPeriodByLevel[level]?.planned ?? 0,
+          currentActual: currentPeriodByLevel[level]?.actual ?? 0,
+          cumulativePlanned: currentPeriodByLevel[level]?.planned ?? 0,
+          cumulativeActual: currentPeriodByLevel[level]?.actual ?? 0,
         };
       }
     });
     return data;
-  }, [location, resourceLevelEfforts]);
+  }, [location, resourceLevelEfforts, currentPeriodByLevel]);
 
   // Totals for effort by type table
   const typeTotals = useMemo(() => {
@@ -68,13 +117,15 @@ const PsrPage = () => {
     Object.values(currentEfforts).forEach(cat => {
       uptoLastPlanned += cat.uptoLastPlanned ?? 0;
       uptoLastActual += cat.uptoLastActual ?? 0;
-      currentPlanned += cat.currentPlanned ?? 0;
-      currentActual += cat.currentActual ?? 0;
-      cumulativePlanned += (cat.uptoLastPlanned ?? 0) + (cat.currentPlanned ?? 0);
-      cumulativeActual += (cat.uptoLastActual ?? 0) + (cat.currentActual ?? 0);
     });
+    Object.values(currentPeriodByCategory).forEach(cat => {
+      currentPlanned += cat.planned;
+      currentActual += cat.actual;
+    });
+    cumulativePlanned = uptoLastPlanned + currentPlanned;
+    cumulativeActual = uptoLastActual + currentActual;
     return { uptoLastPlanned, uptoLastActual, currentPlanned, currentActual, cumulativePlanned, cumulativeActual };
-  }, [currentEfforts]);
+  }, [currentEfforts, currentPeriodByCategory]);
 
   // Totals for resource level table
   const resourceTotals = useMemo(() => {
@@ -126,7 +177,9 @@ const PsrPage = () => {
   const totalCumulativePlanned = getTotalPlannedEffort();
   const plannedProductivity = (projectSize.current && totalCumulativePlanned) ? (projectSize.current / totalCumulativePlanned).toFixed(2) : 0;
   const actualProductivity = (projectSize.current && totalCumulativeActual) ? (projectSize.current / totalCumulativeActual).toFixed(2) : 0;
-
+  const handleResourceLevelUptoLastChange = (level, field, value) => {
+    updateResourceLevelEffort(level, location, 'uptoLast', field, value);
+  };
   return (
     <div>
       <PageHeader title="Project Status Review" subtitle="Track planned vs actual effort" />
@@ -179,8 +232,8 @@ const PsrPage = () => {
               const d = currentEfforts[cat] || {};
               const uptoLastPlanned = d.uptoLastPlanned || 0;
               const uptoLastActual = d.uptoLastActual || 0;
-              const currentPlanned = d.currentPlanned || 0;
-              const currentActual = d.currentActual || 0;
+              const currentPlanned = currentPeriodByCategory[cat]?.planned ?? 0;
+              const currentActual = currentPeriodByCategory[cat]?.actual ?? 0;
               const cumulativePlanned = uptoLastPlanned + currentPlanned;
               const cumulativeActual = uptoLastActual + currentActual;
               return (
