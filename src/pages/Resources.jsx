@@ -1,12 +1,16 @@
+// src/pages/resources/ResourcesPage.jsx
 import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../store/useAppstore';
 import PageHeader from '../components/layout/PageHeader';
 import Button from '../components/common/Button';
+import Toast from '../components/common/Toast';
+import ConfirmModal from '../components/common/ConfirmModal';
 import Modal from '../components/common/Modal';
 import InputField from '../components/forms/InputField';
 import SelectField from '../components/forms/SelectField';
-import {RESOURCE_LEVELS, RESOURCE_TYPES, RESOURCE_AVAILABILITY_STATUS} from '../data/dropdownOptions';
-
+import { RESOURCE_LEVELS, RESOURCE_TYPES, RESOURCE_AVAILABILITY_STATUS } from '../data/dropdownOptions';
+import { PATTERNS } from '../utils/constants';
+import { useFormValidation } from '../utils/useFormValidation';
 
 const ResourcesPage = () => {
   const {
@@ -20,6 +24,9 @@ const ResourcesPage = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingResource, setEditingResource] = useState(null);
+  const [toast, setToast] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, id: null });
+
   const [formData, setFormData] = useState({
     employeeCode: '',
     name: '',
@@ -32,11 +39,26 @@ const ResourcesPage = () => {
     availabilityStatus: 'Available',
   });
 
-  // Compute summary data
+  const validationRules = {
+    employeeCode: {
+      required: true,
+      pattern: PATTERNS.ALPHANUMERIC_SPACES,
+      message: 'Employee code can only contain letters, numbers, and spaces',
+      label: 'Employee Code',
+    },
+    name: {
+      required: true,
+      pattern: PATTERNS.ALPHABETS_SPACES,
+      message: 'Name can only contain letters and spaces',
+      label: 'Name',
+    },
+  };
+
+  const { validateAll, errors } = useFormValidation(validationRules);
+  
   const typeSummary = useMemo(() => getResourceTotalsByType(), [resources, getResourceTotalsByType]);
   const levelSummary = useMemo(() => getResourceTotalsByLevel(), [resources, getResourceTotalsByLevel]);
 
-  // Handlers
   const handleAddResource = () => {
     setEditingResource(null);
     setFormData({
@@ -59,10 +81,14 @@ const ResourcesPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteResource = (id) => {
-    if (window.confirm('Are you sure you want to delete this resource?')) {
-      removeResource(id);
-    }
+  const handleDeleteClick = (id) => {
+    setDeleteConfirm({ isOpen: true, id });
+  };
+
+  const handleConfirmDelete = () => {
+    removeResource(deleteConfirm.id);
+    setDeleteConfirm({ isOpen: false, id: null });
+    setToast({ message: 'Resource deleted successfully', type: 'success' });
   };
 
   const handleFormChange = (e) => {
@@ -74,22 +100,25 @@ const ResourcesPage = () => {
   };
 
   const handleSubmit = () => {
+    const isValid = validateAll(formData);
+    if (!isValid) return;
+    
     if (editingResource) {
       updateResource(editingResource.id, formData);
+      setToast({ message: 'Resource updated successfully', type: 'success' });
     } else {
       addResource(formData);
+      setToast({ message: 'Resource added successfully', type: 'success' });
     }
     setIsModalOpen(false);
   };
 
-  // Helper: compute deviation
   const computeDeviation = (planned, actual) => {
     if (!planned || planned === 0) return '-';
     const dev = ((planned - actual) / planned) * 100;
     return dev.toFixed(1) + '%';
   };
 
-  // Helper: compute billable %
   const computeBillablePercent = (plannedOff, actualOff, plannedOn, actualOn) => {
     const totalPlanned = parseInt(plannedOff) + parseInt(plannedOn);
     const totalActual = parseInt(actualOff) + parseInt(actualOn);
@@ -103,11 +132,7 @@ const ResourcesPage = () => {
       <PageHeader
         title="Resources"
         subtitle="Manage team members, track planned/actual effort, and view summaries by type/level"
-        actions={[
-          <Button key="add" variant="primary" onClick={handleAddResource}>
-            + Add Resource
-          </Button>,
-        ]}
+        actions={[<Button key="add" variant="primary" onClick={handleAddResource}>+ Add Resource</Button>]}
       />
 
       {/* Main Resource Table */}
@@ -155,23 +180,13 @@ const ResourcesPage = () => {
                   <td className="px-4 py-2">{plannedPercent}%</td>
                   <td className="px-4 py-2">{actualPercent}%</td>
                   <td className="px-4 py-2">
-                    <button onClick={() => handleEditResource(r)} className="text-blue-600 hover:text-blue-800 mr-2">
-                      Edit
-                    </button>
-                    <button onClick={() => handleDeleteResource(r.id)} className="text-red-600 hover:text-red-800">
-                      Delete
-                    </button>
+                    <button onClick={() => handleEditResource(r)} className="text-blue-600 hover:text-blue-800 mr-2">Edit</button>
+                    <button onClick={() => handleDeleteClick(r.id)} className="text-red-600 hover:text-red-800">Delete</button>
                   </td>
                 </tr>
               );
             })}
-            {resources.length === 0 && (
-              <tr>
-                <td colSpan="14" className="text-center py-4 text-gray-500">
-                  No resources added. Click "Add Resource" to begin.
-                </td>
-              </tr>
-            )}
+            {resources.length === 0 && <tr><td colSpan="14" className="text-center py-4 text-gray-500">No resources added. Click "Add Resource" to begin.{" "}</td></tr>}
           </tbody>
         </table>
       </div>
@@ -181,17 +196,7 @@ const ResourcesPage = () => {
         <h3 className="text-lg font-semibold px-4 pt-4">Resource Type Summary</h3>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-2 text-left">Type</th>
-                <th className="px-4 py-2 text-left">Offshore Planned</th>
-                <th className="px-4 py-2 text-left">Offshore Actual</th>
-                <th className="px-4 py-2 text-left">Offshore Dev.</th>
-                <th className="px-4 py-2 text-left">Onsite Planned</th>
-                <th className="px-4 py-2 text-left">Onsite Actual</th>
-                <th className="px-4 py-2 text-left">Onsite Dev.</th>
-              </tr>
-            </thead>
+            <thead className="bg-gray-50"><tr><th>Type</th><th>Offshore Planned</th><th>Offshore Actual</th><th>Offshore Dev.</th><th>Onsite Planned</th><th>Onsite Actual</th><th>Onsite Dev.</th></tr></thead>
             <tbody>
               {Object.entries(typeSummary).map(([type, data]) => (
                 <tr key={type}>
@@ -214,17 +219,7 @@ const ResourcesPage = () => {
         <h3 className="text-lg font-semibold px-4 pt-4">Resource Level Summary</h3>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-2 text-left">Level</th>
-                <th className="px-4 py-2 text-left">Offshore Planned</th>
-                <th className="px-4 py-2 text-left">Offshore Actual</th>
-                <th className="px-4 py-2 text-left">Offshore Dev.</th>
-                <th className="px-4 py-2 text-left">Onsite Planned</th>
-                <th className="px-4 py-2 text-left">Onsite Actual</th>
-                <th className="px-4 py-2 text-left">Onsite Dev.</th>
-              </tr>
-            </thead>
+            <thead className="bg-gray-50"><tr><th>Level</th><th>Offshore Planned</th><th>Offshore Actual</th><th>Offshore Dev.</th><th>Onsite Planned</th><th>Onsite Actual</th><th>Onsite Dev.</th></tr></thead>
             <tbody>
               {Object.entries(levelSummary).map(([level, data]) => (
                 <tr key={level}>
@@ -256,47 +251,41 @@ const ResourcesPage = () => {
             value={formData.employeeCode}
             onChange={handleFormChange}
             required
+            error={errors.employeeCode}
           />
-          <InputField label="Name" name="name" value={formData.name} onChange={handleFormChange} required />
+          <InputField 
+            label="Name" 
+            name="name" 
+            value={formData.name} 
+            onChange={handleFormChange} 
+            required 
+            error={errors.name}
+          />
           <SelectField label="Level" name="level" options={RESOURCE_LEVELS} value={formData.level} onChange={handleFormChange} />
           <SelectField label="Resource Type" name="type" options={RESOURCE_TYPES} value={formData.type} onChange={handleFormChange} />
-          <InputField
-            label="Offshore Planned (Hrs)"
-            name="offshorePlanned"
-            type="number"
-            value={formData.offshorePlanned}
-            onChange={handleFormChange}
-          />
-          <InputField
-            label="Offshore Actual (Hrs)"
-            name="offshoreActual"
-            type="number"
-            value={formData.offshoreActual}
-            onChange={handleFormChange}
-          />
-          <InputField
-            label="Onsite Planned (Hrs)"
-            name="onsitePlanned"
-            type="number"
-            value={formData.onsitePlanned}
-            onChange={handleFormChange}
-          />
-          <InputField
-            label="Onsite Actual (Hrs)"
-            name="onsiteActual"
-            type="number"
-            value={formData.onsiteActual}
-            onChange={handleFormChange}
-          />
-          <SelectField
-            label="Availability Status"
-            name="availabilityStatus"
-            options={RESOURCE_AVAILABILITY_STATUS}
-            value={formData.availabilityStatus}
-            onChange={handleFormChange}
-          />
+          <InputField label="Offshore Planned (Hrs)" name="offshorePlanned" type="number" value={formData.offshorePlanned} onChange={handleFormChange} />
+          <InputField label="Offshore Actual (Hrs)" name="offshoreActual" type="number" value={formData.offshoreActual} onChange={handleFormChange} />
+          <InputField label="Onsite Planned (Hrs)" name="onsitePlanned" type="number" value={formData.onsitePlanned} onChange={handleFormChange} />
+          <InputField label="Onsite Actual (Hrs)" name="onsiteActual" type="number" value={formData.onsiteActual} onChange={handleFormChange} />
+          <SelectField label="Availability Status" name="availabilityStatus" options={RESOURCE_AVAILABILITY_STATUS} value={formData.availabilityStatus} onChange={handleFormChange} />
         </div>
       </Modal>
+
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, id: null })}
+        onConfirm={handleConfirmDelete}
+        title="Confirm Delete"
+        message="Are you sure you want to delete this resource? This action cannot be undone."
+      />
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };
