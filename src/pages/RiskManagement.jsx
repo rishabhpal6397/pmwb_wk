@@ -223,7 +223,7 @@ const RiskManagementPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <SummaryCard label="Total Risks" value={stats.total} color="blue" />
-        <SummaryCard label="Open Risks" value={stats.open} color="yellow" />
+        <SummaryCard label="Open Risks" value={stats.open} color="orange" />
         <SummaryCard label="Closed Risks" value={stats.closed} color="green" />
         <SummaryCard label="High Risk (Index ≥1.5)" value={stats.highRisk} color="red" />
       </div>

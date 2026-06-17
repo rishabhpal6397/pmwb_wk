@@ -152,10 +152,10 @@ const OpportunityTrackerPage = () => {
   // ── Card config ──
   const cards = [
     { label: 'Total Opportunities', value: stats.total, color: 'blue' },
-    { label: 'Open / In Progress', value: stats.open, color: 'yellow' },
+    { label: 'Open / In Progress', value: stats.open, color: 'orange' },
     { label: 'Completed / Closed', value: stats.completed, color: 'green' },
-    { label: 'Cost Benefit', value: `$${stats.totalCost.toLocaleString()}`, color: 'purple' },
-    { label: 'Revenue Benefit', value: `$${stats.totalRevenue.toLocaleString()}`, color: 'indigo' },
+    { label: 'Cost Benefit', value: `$${stats.totalCost.toLocaleString()}`, color: 'red' },
+    { label: 'Revenue Benefit', value: `$${stats.totalRevenue.toLocaleString()}`, color: 'orange' },
   ];
 
   // ── Render helpers ──

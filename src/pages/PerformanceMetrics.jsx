@@ -131,7 +131,7 @@ const PerformanceMetricsPage = () => {
         <SummaryCard label="Total Records" value={stats.total} color="blue" />
         <SummaryCard label="Avg. On‑time Completion" value={`${stats.avgCompletion}%`} color="green" />
         <SummaryCard label="Total Major Defects" value={stats.totalDefects} color="red" />
-        <SummaryCard label="Milestones Achieved" value={stats.totalMilestones} color="purple" />
+        <SummaryCard label="Milestones Achieved" value={stats.totalMilestones} color="orange" />
       </div>
 
       {/* Performance Table */}

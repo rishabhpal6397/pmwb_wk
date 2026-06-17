@@ -182,7 +182,7 @@ const MetricsPage = () => {
           { label: 'Total Metrics', value: stats.total, color: 'blue' },
           { label: 'On Track', value: stats.onTrack, color: 'green' },
           { label: 'At Risk', value: stats.atRisk, color: 'red' },
-          { label: 'No Data', value: stats.noData, color: 'purple' },
+          { label: 'No Data', value: stats.noData, color: 'orange' },
         ].map(({ label, value, color }) => (
           <div key={label} className={`bg-gradient-to-r from-${color}-500 to-${color}-600 text-white p-4 rounded-lg shadow`}>
             <p className="text-sm opacity-90">{label}</p>

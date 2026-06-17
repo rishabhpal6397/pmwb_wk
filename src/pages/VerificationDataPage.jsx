@@ -142,7 +142,7 @@ const VerificationDataPage = () => {
 
   const cards = [
     { label: 'Total Entries', value: stats.totalEntries, color: 'blue' },
-    { label: 'Total Weighted Defects', value: stats.totalWeightedDefects.toFixed(2), color: 'purple' },
+    { label: 'Total Weighted Defects', value: stats.totalWeightedDefects.toFixed(2), color: 'orange' },
     { label: 'Defect Categories', value: `${stats.major} / ${stats.minor} / ${stats.trivial}`, color: 'green', sub: 'Major / Minor / Trivial' },
   ];
 
