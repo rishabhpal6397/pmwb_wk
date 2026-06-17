@@ -41,6 +41,7 @@ const Dashboard = () => {
     phases,
     getTotalCumulativeEffort,
     getTotalPlannedEffort,
+    isExporting
   } = useAppStore();
 
   // --- Derived stats with useMemo ---
@@ -88,9 +89,10 @@ const Dashboard = () => {
           <button
             key="export"
             onClick={exportToExcel}
+            disabled={isExporting}
             className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
           >
-            Export to Excel
+            {isExporting ? 'Exporting…' : 'Export to Excel'}
           </button>,
         ]}
       />

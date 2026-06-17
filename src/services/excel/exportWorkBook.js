@@ -117,6 +117,7 @@ export const exportToExcel = async () => {
   const state = useAppStore.getState();
 
   try {
+    state.setExporting();
     const response = await fetch('/template.xlsx');
     if (!response.ok) {
       throw new Error(`Failed to load Excel template (HTTP ${response.status})`);
@@ -483,22 +484,22 @@ export const exportToExcel = async () => {
       });
   }
 
-    const wsLessons = workbook.getWorksheet('Lesson Learned');
-    if (wsLessons) {
-      const lessons = state.lessons ?? [];
-      deleteRowsAfter(wsLessons, 6);
-      ensureRows(wsLessons, 6, 6, lessons.length, 5);
-      lessons.forEach((l, i) => {
-        const row = 6 + i;
-        // clearDataCells(wsLessons, row);
-        safeSet(wsLessons, `C1`, l.projectName);
-        safeSet(wsLessons, `A${row}`, l.winIssue);
-        safeSet(wsLessons, `B${row}`, l.description);
-        safeSet(wsLessons, `C${row}`, l.impact);
-        safeSet(wsLessons, `D${row}`, l.futureChange);
-        safeSet(wsLessons, `E${row}`, l.actionItems);
-      });
-    }
+      const wsLessons = workbook.getWorksheet('Lesson Learned');
+      if (wsLessons) {
+        const lessons = state.lessons ?? [];
+        deleteRowsAfter(wsLessons, 6);
+        ensureRows(wsLessons, 6, 6, lessons.length, 5);
+        lessons.forEach((l, i) => {
+          const row = 6 + i;
+          // clearDataCells(wsLessons, row);
+          safeSet(wsLessons, `C1`, l.projectName);
+          safeSet(wsLessons, `A${row}`, l.winIssue);
+          safeSet(wsLessons, `B${row}`, l.description);
+          safeSet(wsLessons, `C${row}`, l.impact);
+          safeSet(wsLessons, `D${row}`, l.futureChange);
+          safeSet(wsLessons, `E${row}`, l.actionItems);
+        });
+      }
 
     const wsPerf = workbook.getWorksheet('PerformanceMetrices');
     if (wsPerf) {
@@ -701,8 +702,10 @@ export const exportToExcel = async () => {
     const dateStamp = new Date().toISOString().split('T')[0];
     const fileName  = `PMWB_${state.projectInfo?.name || 'Project'}_${dateStamp}.xlsx`;
     saveAs(blob, fileName);
+    state.resetExporting();
   } catch (error) {
     console.error('[Export] Error during Excel export:', error);
     alert(`Failed to export workbook: ${error.message}`);
+    state.resetExporting();
   }
 };
