@@ -76,8 +76,7 @@ const PsrPage = () => {
   const typeSummary = useMemo(() => getResourceTotalsByType(), [resources, getResourceTotalsByType]);
   const levelSummary = useMemo(() => getResourceTotalsByLevel(), [resources, getResourceTotalsByLevel]);
   // Current efforts based on location
-  const approvedEffort = useMemo(() => {
-    return (projectInfo.estimatedEffort * 0.9).toFixed(2)});
+  const approvedEffort = useMemo(() => (projectInfo.estimatedEffort * 0.9).toFixed(2), [projectInfo.estimatedEffort]);
   const currentEfforts = location === 'offshore' ? offshoreEfforts : onsiteEfforts;
   const updateEffort = location === 'offshore' ? updateOffshoreEffort : updateOnsiteEffort;
 

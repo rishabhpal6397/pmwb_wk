@@ -77,16 +77,8 @@ const ProjectInfoPage = () => {
   const remainingEffort = approvedEffort - actualEffortConsumed;
 
   const actualOnsiteFTEs = getActualOnsiteFTEs();
-  // useMemo(() => {
-  //   const onsiteActual = Object.values(onsiteEfforts).reduce((sum, cat) => sum + (cat.cumulativeActual || 0), 0);
-  //   return (onsiteActual / 8).toFixed(2);
-  // }, [onsiteEfforts]);
 
   const actualOffshoreFTEs = getActualOffshoreFTEs();
-  // useMemo(() => {
-  //   const offshoreActual = Object.values(offshoreEfforts).reduce((sum, cat) => sum + (cat.cumulativeActual || 0), 0);
-  //   return (offshoreActual / 8).toFixed(2);
-  // }, [offshoreEfforts]);
 
   const versionColumns = [
     { field: 'date', header: 'Date', editable: true, type: 'date' },

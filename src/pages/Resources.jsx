@@ -12,6 +12,56 @@ import { RESOURCE_LEVELS, RESOURCE_TYPES, RESOURCE_AVAILABILITY_STATUS } from '.
 import { PATTERNS } from '../utils/constants';
 import { useFormValidation } from '../utils/useFormValidation';
 
+// Helper for deviation and billable calculations (moved outside component for reusability)
+const computeDeviation = (planned, actual) => {
+  if (!planned || planned === 0) return '-';
+  return (((planned - actual) / planned) * 100).toFixed(1) + '%';
+};
+
+const computeBillablePercent = (plannedOff, actualOff, plannedOn, actualOn) => {
+  const totalPlanned = parseInt(plannedOff) + parseInt(plannedOn);
+  const totalActual = parseInt(actualOff) + parseInt(actualOn);
+  return {
+    plannedPercent: (totalPlanned / 160 * 100).toFixed(1),
+    actualPercent: (totalActual / 160 * 100).toFixed(1),
+  };
+};
+
+// Helper to render a summary table (Type or Level)
+const SummaryTable = ({ title, data, computeDeviation }) => (
+  <div className="bg-white rounded-lg shadow">
+    <h3 className="text-lg font-semibold px-4 pt-4">{title}</h3>
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-gray-200 text-sm">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-4 py-2 text-left">{title.includes('Type') ? 'Type' : 'Level'}</th>
+            <th className="px-4 py-2 text-left">Offshore Planned</th>
+            <th className="px-4 py-2 text-left">Offshore Actual</th>
+            <th className="px-4 py-2 text-left">Offshore Dev.</th>
+            <th className="px-4 py-2 text-left">Onsite Planned</th>
+            <th className="px-4 py-2 text-left">Onsite Actual</th>
+            <th className="px-4 py-2 text-left">Onsite Dev.</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries(data).map(([key, values]) => (
+            <tr key={key}>
+              <td className="px-4 py-2">{key}</td>
+              <td className="px-4 py-2">{values.offshorePlanned}</td>
+              <td className="px-4 py-2">{values.offshoreActual}</td>
+              <td className="px-4 py-2">{computeDeviation(values.offshorePlanned, values.offshoreActual)}</td>
+              <td className="px-4 py-2">{values.onsitePlanned}</td>
+              <td className="px-4 py-2">{values.onsiteActual}</td>
+              <td className="px-4 py-2">{computeDeviation(values.onsitePlanned, values.onsiteActual)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
+
 const ResourcesPage = () => {
   const {
     resources,
@@ -26,7 +76,6 @@ const ResourcesPage = () => {
   const [editingResource, setEditingResource] = useState(null);
   const [toast, setToast] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, id: null });
-
   const [formData, setFormData] = useState({
     employeeCode: '',
     name: '',
@@ -55,10 +104,10 @@ const ResourcesPage = () => {
   };
 
   const { validateAll, errors } = useFormValidation(validationRules);
-  
   const typeSummary = useMemo(() => getResourceTotalsByType(), [resources, getResourceTotalsByType]);
   const levelSummary = useMemo(() => getResourceTotalsByLevel(), [resources, getResourceTotalsByLevel]);
 
+  // Modal handlers
   const handleAddResource = () => {
     setEditingResource(null);
     setFormData({
@@ -93,16 +142,14 @@ const ResourcesPage = () => {
 
   const handleFormChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
   const handleSubmit = () => {
-    const isValid = validateAll(formData);
-    if (!isValid) return;
-    
+    if (!validateAll(formData)) return;
     if (editingResource) {
       updateResource(editingResource.id, formData);
       setToast({ message: 'Resource updated successfully', type: 'success' });
@@ -113,19 +160,13 @@ const ResourcesPage = () => {
     setIsModalOpen(false);
   };
 
-  const computeDeviation = (planned, actual) => {
-    if (!planned || planned === 0) return '-';
-    const dev = ((planned - actual) / planned) * 100;
-    return dev.toFixed(1) + '%';
-  };
-
-  const computeBillablePercent = (plannedOff, actualOff, plannedOn, actualOn) => {
-    const totalPlanned = parseInt(plannedOff) + parseInt(plannedOn);
-    const totalActual = parseInt(actualOff) + parseInt(actualOn);
-    const plannedPercent = totalPlanned / 160 * 100; 
-    const actualPercent = totalActual / 160 * 100;
-    return { plannedPercent: plannedPercent.toFixed(1), actualPercent: actualPercent.toFixed(1) };
-  };
+  // Main resource table columns definition (for rendering consistency)
+  const tableHeaders = [
+    'Emp. Code', 'Name', 'Level', 'Type',
+    'Offshore Planned', 'Offshore Actual', 'Offshore Dev.',
+    'Onsite Planned', 'Onsite Actual', 'Onsite Dev.',
+    'Availability', 'Billable % (Planned)', 'Billable % (Actual)', 'Actions'
+  ];
 
   return (
     <div className="space-y-8">
@@ -140,20 +181,9 @@ const ResourcesPage = () => {
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-100">
             <tr>
-              <th className="px-4 py-2 text-left">Emp. Code</th>
-              <th className="px-4 py-2 text-left">Name</th>
-              <th className="px-4 py-2 text-left">Level</th>
-              <th className="px-4 py-2 text-left">Type</th>
-              <th className="px-4 py-2 text-left">Offshore Planned</th>
-              <th className="px-4 py-2 text-left">Offshore Actual</th>
-              <th className="px-4 py-2 text-left">Offshore Dev.</th>
-              <th className="px-4 py-2 text-left">Onsite Planned</th>
-              <th className="px-4 py-2 text-left">Onsite Actual</th>
-              <th className="px-4 py-2 text-left">Onsite Dev.</th>
-              <th className="px-4 py-2 text-left">Availability</th>
-              <th className="px-4 py-2 text-left">Billable % (Planned)</th>
-              <th className="px-4 py-2 text-left">Billable % (Actual)</th>
-              <th className="px-4 py-2 text-left">Actions</th>
+              {tableHeaders.map(header => (
+                <th key={header} className="px-4 py-2 text-left">{header}</th>
+              ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -186,56 +216,16 @@ const ResourcesPage = () => {
                 </tr>
               );
             })}
-            {resources.length === 0 && <tr><td colSpan="14" className="text-center py-4 text-gray-500">No resources added. Click "Add Resource" to begin.{" "}</td></tr>}
+            {resources.length === 0 && (
+              <tr><td colSpan={tableHeaders.length} className="text-center py-4 text-gray-500">No resources added. Click "Add Resource" to begin.</td></tr>
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* Summary by Resource Type */}
-      <div className="bg-white rounded-lg shadow">
-        <h3 className="text-lg font-semibold px-4 pt-4">Resource Type Summary</h3>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50"><tr><th>Type</th><th>Offshore Planned</th><th>Offshore Actual</th><th>Offshore Dev.</th><th>Onsite Planned</th><th>Onsite Actual</th><th>Onsite Dev.</th></tr></thead>
-            <tbody>
-              {Object.entries(typeSummary).map(([type, data]) => (
-                <tr key={type}>
-                  <td className="px-4 py-2">{type}</td>
-                  <td className="px-4 py-2">{data.offshorePlanned}</td>
-                  <td className="px-4 py-2">{data.offshoreActual}</td>
-                  <td className="px-4 py-2">{computeDeviation(data.offshorePlanned, data.offshoreActual)}</td>
-                  <td className="px-4 py-2">{data.onsitePlanned}</td>
-                  <td className="px-4 py-2">{data.onsiteActual}</td>
-                  <td className="px-4 py-2">{computeDeviation(data.onsitePlanned, data.onsiteActual)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Summary by Resource Level */}
-      <div className="bg-white rounded-lg shadow">
-        <h3 className="text-lg font-semibold px-4 pt-4">Resource Level Summary</h3>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50"><tr><th>Level</th><th>Offshore Planned</th><th>Offshore Actual</th><th>Offshore Dev.</th><th>Onsite Planned</th><th>Onsite Actual</th><th>Onsite Dev.</th></tr></thead>
-            <tbody>
-              {Object.entries(levelSummary).map(([level, data]) => (
-                <tr key={level}>
-                  <td className="px-4 py-2">{level}</td>
-                  <td className="px-4 py-2">{data.offshorePlanned}</td>
-                  <td className="px-4 py-2">{data.offshoreActual}</td>
-                  <td className="px-4 py-2">{computeDeviation(data.offshorePlanned, data.offshoreActual)}</td>
-                  <td className="px-4 py-2">{data.onsitePlanned}</td>
-                  <td className="px-4 py-2">{data.onsiteActual}</td>
-                  <td className="px-4 py-2">{computeDeviation(data.onsitePlanned, data.onsiteActual)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* Summary Tables – using reusable helper component */}
+      <SummaryTable title="Resource Type Summary" data={typeSummary} computeDeviation={computeDeviation} />
+      <SummaryTable title="Resource Level Summary" data={levelSummary} computeDeviation={computeDeviation} />
 
       {/* Add/Edit Modal */}
       <Modal
@@ -253,12 +243,12 @@ const ResourcesPage = () => {
             required
             error={errors.employeeCode}
           />
-          <InputField 
-            label="Name" 
-            name="name" 
-            value={formData.name} 
-            onChange={handleFormChange} 
-            required 
+          <InputField
+            label="Name"
+            name="name"
+            value={formData.name}
+            onChange={handleFormChange}
+            required
             error={errors.name}
           />
           <SelectField label="Level" name="level" options={RESOURCE_LEVELS} value={formData.level} onChange={handleFormChange} />
@@ -279,13 +269,7 @@ const ResourcesPage = () => {
         message="Are you sure you want to delete this resource? This action cannot be undone."
       />
 
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 };

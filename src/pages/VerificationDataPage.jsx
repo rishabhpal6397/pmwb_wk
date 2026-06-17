@@ -9,13 +9,11 @@ import SelectField from '../components/forms/SelectField';
 import TextAreaField from '../components/forms/TextAreaField';
 import { PHASE_OPTIONS, VERIFICATION_ACTIVITY_OPTIONS, TYPE_OPTIONS } from '../data/dropdownOptions';
 
-
-// ========== Helper Functions ==========
+// ── Helpers ──────────────────────────────────────────────────────────────
 const getToday = () => new Date().toISOString().split('T')[0];
 const totalDefects = (major = 0, minor = 0, trivial = 0) => major + minor + trivial;
 const weightedDefects = (major = 0, minor = 0, trivial = 0) => major + minor * 0.33 + trivial * 0.2;
 
-// ========== Default Form Data ==========
 const DEFAULT_FORM_DATA = {
   date: getToday(),
   projectName: '',
@@ -35,7 +33,30 @@ const DEFAULT_FORM_DATA = {
   remarks: '',
 };
 
-// ========== Main Component ==========
+// ── Column Definitions ──────────────────────────────────────────────────
+const COLUMNS = [
+  { key: 'date', label: 'Date', width: 'w-28', sticky: true, left: 0, align: 'center' },
+  { key: 'projectName', label: 'Project Name', width: 'w-52', sticky: true, left: 112, align: 'left' },
+  { key: 'totalPlannedEffort', label: 'Total Planned Effort', width: 'w-48', align: 'center' },
+  { key: 'phase', label: 'Phase', width: 'w-48', align: 'left' },
+  { key: 'moduleSubmodule', label: 'Module/Submodule', width: 'min-w-[150px] w-[150px]', align: 'left' },
+  { key: 'verificationActivity', label: 'Verification Activity', width: 'w-48', align: 'left' },
+  { key: 'type', label: 'Type', width: 'w-24', align: 'center' },
+  { key: 'estimatedEffort', label: 'Est. Effort', width: 'w-24', align: 'right' },
+  { key: 'actualEffort', label: 'Actual Effort', width: 'w-24', align: 'right' },
+  { key: 'majorDefects', label: 'Major', width: 'w-20', align: 'center' },
+  { key: 'minorDefects', label: 'Minor', width: 'w-20', align: 'center' },
+  { key: 'trivialDefects', label: 'Trivial', width: 'w-20', align: 'center' },
+  { key: 'total', label: 'Total', width: 'w-20', align: 'center' },
+  { key: 'closedDefects', label: 'Closed', width: 'w-20', align: 'center' },
+  { key: 'weighted', label: 'Weighted', width: 'w-24', align: 'right' },
+  { key: 'estimatedRework', label: 'Est. Rework', width: 'w-24', align: 'right' },
+  { key: 'actualRework', label: 'Actual Rework', width: 'w-24', align: 'right' },
+  { key: 'remarks', label: 'Remarks', width: 'min-w-[150px] w-[150px]', align: 'left' },
+  { key: 'actions', label: 'Actions', width: 'w-24', align: 'center' },
+];
+
+// ── Main Component ──────────────────────────────────────────────────────
 const VerificationDataPage = () => {
   const store = useAppStore();
   const verificationEntries = store.verificationEntries || [];
@@ -49,7 +70,7 @@ const VerificationDataPage = () => {
   const [viewingEntry, setViewingEntry] = useState(null);
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
 
-  // Summary stats (optimized with useMemo)
+  // ── Statistics ──
   const stats = useMemo(() => {
     const entries = verificationEntries;
     const totalWeighted = entries.reduce((sum, e) => sum + weightedDefects(e.majorDefects, e.minorDefects, e.trivialDefects), 0);
@@ -65,7 +86,7 @@ const VerificationDataPage = () => {
     };
   }, [verificationEntries]);
 
-  // Handlers
+  // ── Handlers ──
   const openModal = (entry = null) => {
     setEditingEntry(entry);
     setFormData(entry ? { ...entry } : { ...DEFAULT_FORM_DATA, date: getToday() });
@@ -74,26 +95,56 @@ const VerificationDataPage = () => {
 
   const handleFormChange = (e) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'number' ? (parseFloat(value) || 0) : value,
-    }));
+    setFormData(prev => ({ ...prev, [name]: type === 'number' ? (parseFloat(value) || 0) : value }));
   };
 
   const handleSubmit = () => {
-    if (editingEntry) {
-      updateVerificationEntry(editingEntry.id, formData);
-    } else {
-      addVerificationEntry(formData);
-    }
+    if (editingEntry) updateVerificationEntry(editingEntry.id, formData);
+    else addVerificationEntry(formData);
     setIsModalOpen(false);
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this verification entry?')) {
-      removeVerificationEntry(id);
-    }
+    if (window.confirm('Are you sure you want to delete this verification entry?')) removeVerificationEntry(id);
   };
+
+  // ── Render helpers ──
+  const renderCell = (entry, col) => {
+    if (col.key === 'actions') {
+      return (
+        <td key="actions" className="px-3 py-2 text-center" onClick={(e) => e.stopPropagation()}>
+          <button onClick={() => openModal(entry)} className="text-blue-600 hover:text-blue-800 mr-2">Edit</button>
+          <button onClick={() => handleDelete(entry.id)} className="text-red-600 hover:text-red-800">Delete</button>
+        </td>
+      );
+    }
+    if (col.key === 'type') {
+      return (
+        <td key="type" className="px-3 py-2 text-center">
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${entry.type === 'Internal' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+            {entry.type}
+          </span>
+        </td>
+      );
+    }
+    if (col.key === 'total') {
+      const total = totalDefects(entry.majorDefects, entry.minorDefects, entry.trivialDefects);
+      return <td key="total" className="px-3 py-2 text-center font-semibold">{total}</td>;
+    }
+    if (col.key === 'weighted') {
+      const weighted = weightedDefects(entry.majorDefects, entry.minorDefects, entry.trivialDefects);
+      return <td key="weighted" className="px-3 py-2 text-right font-medium">{weighted.toFixed(2)}</td>;
+    }
+    const value = entry[col.key];
+    const display = (value === undefined || value === null) ? '-' : value;
+    return <td key={col.key} className={`px-3 py-2 ${col.align === 'center' ? 'text-center' : ''} ${col.align === 'right' ? 'text-right' : ''} whitespace-normal break-words ${['remarks', 'moduleSubmodule', 'projectName'].includes(col.key) ? 'text-xs' : ''}`}>{display}</td>;
+  };
+
+  const cards = [
+    { label: 'Total Entries', value: stats.totalEntries, color: 'blue' },
+    { label: 'Total Weighted Defects', value: stats.totalWeightedDefects.toFixed(2), color: 'purple' },
+    { label: 'Defect Categories', value: `${stats.major} / ${stats.minor} / ${stats.trivial}`, color: 'green', sub: 'Major / Minor / Trivial' },
+  ];
 
   return (
     <div className="space-y-6">
@@ -105,19 +156,13 @@ const VerificationDataPage = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg shadow">
-          <p className="text-sm opacity-90">Total Entries</p>
-          <p className="text-2xl font-bold">{stats.totalEntries}</p>
-        </div>
-        <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg shadow">
-          <p className="text-sm opacity-90">Total Weighted Defects</p>
-          <p className="text-2xl font-bold">{stats.totalWeightedDefects.toFixed(2)}</p>
-        </div>
-        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg shadow">
-          <p className="text-sm opacity-90">Defect Categories</p>
-          <p className="text-2xl font-bold">{stats.major} / {stats.minor} / {stats.trivial}</p>
-          <p className="text-xs opacity-80">Major / Minor / Trivial</p>
-        </div>
+        {cards.map((card, idx) => (
+          <div key={idx} className={`bg-gradient-to-r from-${card.color}-500 to-${card.color}-600 text-white p-4 rounded-lg shadow`}>
+            <p className="text-sm opacity-90">{card.label}</p>
+            <p className="text-2xl font-bold">{card.value}</p>
+            {card.sub && <p className="text-xs opacity-80">{card.sub}</p>}
+          </div>
+        ))}
       </div>
 
       {/* Verification Entries Table */}
@@ -126,65 +171,58 @@ const VerificationDataPage = () => {
           <table className="min-w-max divide-y divide-gray-200 text-sm">
             <thead className="bg-gray-100 sticky top-0 z-10">
               <tr>
-                <th className="w-28 px-3 py-3 text-center sticky left-0 bg-gray-100 z-20 border-r">Date</th>
-                <th className="w-52 px-3 py-3 text-left sticky left-28 bg-gray-100 z-20 border-r">Project Name <span className="text-xs text-gray-500 font-normal">(MAZDA-ADS only)</span></th>
-                <th className="w-48 px-3 py-3 text-left">Total Planned Effort <span className="text-xs text-gray-500">(MAZDA-ADS only)</span></th>
-                <th className="w-48 px-3 py-3 text-left">Phase</th>
-                <th className="min-w-[150px] w-[150px] px-3 py-3 text-left">Module/Submodule</th>
-                <th className="w-48 px-3 py-3 text-left">Verification Activity</th>
-                <th className="w-24 px-3 py-3 text-center">Type</th>
-                <th className="w-24 px-3 py-3 text-right">Est. Effort</th>
-                <th className="w-24 px-3 py-3 text-right">Actual Effort</th>
-                <th className="w-20 px-3 py-3 text-center">Major</th>
-                <th className="w-20 px-3 py-3 text-center">Minor</th>
-                <th className="w-20 px-3 py-3 text-center">Trivial</th>
-                <th className="w-20 px-3 py-3 text-center">Total</th>
-                <th className="w-20 px-3 py-3 text-center">Closed</th>
-                <th className="w-24 px-3 py-3 text-right">Weighted</th>
-                <th className="w-24 px-3 py-3 text-right">Est. Rework</th>
-                <th className="w-24 px-3 py-3 text-right">Actual Rework</th>
-                <th className="min-w-[150px] w-[150px] px-3 py-3 text-left">Remarks</th>
-                <th className="w-24 px-3 py-3 text-center">Actions</th>
+                {COLUMNS.map(col => (
+                  <th
+                    key={col.key}
+                    className={`${col.width} px-3 py-3 text-${col.align || 'left'} ${
+                      col.sticky ? `sticky left-${col.left} bg-gray-100 z-20 border-r border-gray-200` : ''
+                    }`}
+                    style={col.sticky ? { left: col.left } : {}}
+                  >
+                    {col.label}
+                    {col.key === 'projectName' && <span className="text-xs text-gray-500 font-normal"> (MAZDA-ADS only)</span>}
+                    {col.key === 'totalPlannedEffort' && <span className="text-xs text-gray-500 font-normal"> (MAZDA-ADS only)</span>}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {verificationEntries.map(entry => {
-                const total = totalDefects(entry.majorDefects, entry.minorDefects, entry.trivialDefects);
-                const weighted = weightedDefects(entry.majorDefects, entry.minorDefects, entry.trivialDefects);
-                return (
-                  <tr key={entry.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => setViewingEntry(entry) || setIsViewModalOpen(true)}>
-                    <td className="w-28 px-3 py-2 text-center sticky left-0 bg-white border-r">{entry.date}</td>
-                    <td className="w-52 px-3 py-2 sticky left-28 bg-white border-r whitespace-normal break-words">{entry.projectName || '-'}</td>
-                    <td className="w-48 px-3 py-2 text-center">{entry.totalPlannedEffort || 0}</td>
-                    <td className="w-48 px-3 py-2">{entry.phase}</td>
-                    <td className="min-w-[150px] w-[150px] px-3 py-2">{entry.moduleSubmodule || '-'}</td>
-                    <td className="w-48 px-3 py-2">{entry.verificationActivity}</td>
-                    <td className="w-24 px-3 py-2 text-center">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${entry.type === 'Internal' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
-                        {entry.type}
-                      </span>
-                    </td>
-                    <td className="w-24 px-3 py-2 text-right">{entry.estimatedEffort || 0}</td>
-                    <td className="w-24 px-3 py-2 text-right font-medium">{entry.actualEffort || 0}</td>
-                    <td className="w-20 px-3 py-2 text-center font-medium text-red-600">{entry.majorDefects || 0}</td>
-                    <td className="w-20 px-3 py-2 text-center text-yellow-600">{entry.minorDefects || 0}</td>
-                    <td className="w-20 px-3 py-2 text-center text-gray-500">{entry.trivialDefects || 0}</td>
-                    <td className="w-20 px-3 py-2 text-center font-semibold">{total}</td>
-                    <td className="w-20 px-3 py-2 text-center">{entry.closedDefects || 0}</td>
-                    <td className="w-24 px-3 py-2 text-right font-medium">{weighted.toFixed(2)}</td>
-                    <td className="w-24 px-3 py-2 text-right">{entry.estimatedRework || 0}</td>
-                    <td className="w-24 px-3 py-2 text-right">{entry.actualRework || 0}</td>
-                    <td className="min-w-[150px] w-[150px] px-3 py-2 text-xs">{entry.remarks || '-'}</td>
-                    <td className="w-24 px-3 py-2 text-center" onClick={e => e.stopPropagation()}>
-                      <button onClick={() => openModal(entry)} className="text-blue-600 hover:text-blue-800 mr-2">Edit</button>
-                      <button onClick={() => handleDelete(entry.id)} className="text-red-600 hover:text-red-800">Delete</button>
-                    </td>
-                  </tr>
-                );
-              })}
-              {verificationEntries.length === 0 && (
-                <tr><td colSpan={19} className="text-center py-8 text-gray-500">No verification entries added. Click "Add Verification Entry" to begin.</td></tr>
-              )}
+              {verificationEntries.map(entry => (
+                <tr key={entry.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => { setViewingEntry(entry); setIsViewModalOpen(true); }}>
+                  {COLUMNS.map(col => {
+                    const cellContent = (() => {
+                      if (col.key === 'actions') {
+                        return (
+                          <td key="actions" className="px-3 py-2 text-center" onClick={(e) => e.stopPropagation()}>
+                            <button onClick={() => openModal(entry)} className="text-blue-600 hover:text-blue-800 mr-2">Edit</button>
+                            <button onClick={() => handleDelete(entry.id)} className="text-red-600 hover:text-red-800">Delete</button>
+                          </td>
+                        );
+                      }
+                      if (col.key === 'type') {
+                        return (
+                          <td key="type" className="px-3 py-2 text-center">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${entry.type === 'Internal' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+                              {entry.type}
+                            </span>
+                          </td>
+                        );
+                      }
+                      if (col.key === 'total') {
+                        return <td key="total" className="px-3 py-2 text-center font-semibold">{totalDefects(entry.majorDefects, entry.minorDefects, entry.trivialDefects)}</td>;
+                      }
+                      if (col.key === 'weighted') {
+                        return <td key="weighted" className="px-3 py-2 text-right font-medium">{weightedDefects(entry.majorDefects, entry.minorDefects, entry.trivialDefects).toFixed(2)}</td>;
+                      }
+                      const value = entry[col.key];
+                      const display = (value === undefined || value === null) ? '-' : value;
+                      return <td key={col.key} className={`${col.width} px-3 py-2 ${col.align === 'center' ? 'text-center' : ''} ${col.align === 'right' ? 'text-right' : ''} whitespace-normal break-words ${['remarks', 'moduleSubmodule', 'projectName'].includes(col.key) ? 'text-xs' : ''} ${col.sticky ? `sticky left-${col.left} bg-white z-10 border-r border-gray-200` : ''}`} style={col.sticky ? { left: col.left } : {}}>{display}</td>;
+                    })();
+                    return cellContent;
+                  })}
+                </tr>
+              ))}
+              {verificationEntries.length === 0 && <tr><td colSpan={COLUMNS.length} className="text-center py-8 text-gray-500">No verification entries added. Click "Add Verification Entry" to begin.</td></tr>}
             </tbody>
           </table>
         </div>
