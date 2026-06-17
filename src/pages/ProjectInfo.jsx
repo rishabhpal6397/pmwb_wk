@@ -39,8 +39,8 @@ const ProjectInfoPage = () => {
       label: 'Customer Name',
     },
     primaryContact: {
-      pattern: PATTERNS.TEXT_WITH_PUNCTUATION,
-      message: 'Only letters, spaces, and basic punctuation allowed',
+      pattern: PATTERNS.PHONE,
+      message: 'Only digits allowed',
       label: 'Primary Contact',
     },
   };
@@ -58,6 +58,20 @@ const ProjectInfoPage = () => {
     } else {
       // Optionally show a toast or ignore – data not saved.
       console.warn(`Invalid ${name}, not updating store`);
+    }
+  };
+
+  
+  const handleSaveClick = () => {
+    const isValid = validateAll();
+    if (isValid) {
+      setToast({ message: 'All changes saved successfully!', type: 'success' });
+    } else {
+      const firstError = Object.values(errors).find(msg => msg);
+      setToast({ 
+        message: firstError || 'Please fix validation errors before saving.', 
+        type: 'error' 
+      });
     }
   };
 
@@ -113,7 +127,7 @@ const ProjectInfoPage = () => {
     <PageHeader
         title="Project Information"
         subtitle="Manage project details and extended attributes"
-        actions={[<Button key="save" variant="primary" onClick={() => setToast({ message: 'Changes saved automatically', type: 'success' })}>Save (Auto)</Button>]}
+        actions={[<Button key="save" variant="primary" onClick={handleSaveClick}>Save (Auto)</Button>]}
       />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Column – Main Project Info */}
@@ -127,7 +141,7 @@ const ProjectInfoPage = () => {
             <SelectField label="Project Type" name="type" options={infotypeOptions} value={projectInfo.type} onChange={handleInfoChange} />
             <InputField label="Customer Name" name="customer" value={formValues.customer} onChange={handleInfoChange} pattern={PATTERNS.ALPHABETS_SPACES} patternErrorMessage="Customer name can only contain letters and spaces" error={errors.customer} />
             <InputField label="Customer Line of Business" name="customerLOB" value={projectInfo.customerLOB} onChange={handleInfoChange} />
-            <InputField label="Primary Contact" name="primaryContact" value={formValues.primaryContact} onChange={handleInfoChange} pattern={PATTERNS.TEXT_WITH_PUNCTUATION} patternErrorMessage="Only letters, spaces, and basic punctuation allowed" error={errors.primaryContact} />
+            <InputField label="Primary Contact" name="primaryContact" value={formValues.primaryContact} onChange={handleInfoChange} pattern={PATTERNS.PHONE} patternErrorMessage="Only digits allowed" error={errors.primaryContact} />
           </div>
         </div>
 
