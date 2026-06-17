@@ -15,7 +15,9 @@ const Dashboard = () => {
     phases,
     offshoreEfforts,
     onsiteEfforts,
-    versionHistory 
+    versionHistory,
+    getTotalCumulativeEffort,
+    getTotalPlannedEffort
   } = useAppStore();
 
   // Calculate totals
@@ -23,17 +25,8 @@ const Dashboard = () => {
   const openRisks = risks?.filter(r => r.status !== 'Closed').length || 0;
   const openIssues = issues?.filter(i => i.status !== 'Closed').length || 0;
   
-  const totalActualEffort = useMemo(() => {
-    const offshore = Object.values(offshoreEfforts || {}).reduce((s, c) => s + (c.actual || 0), 0);
-    const onsite = Object.values(onsiteEfforts || {}).reduce((s, c) => s + (c.actual || 0), 0);
-    return offshore + onsite;
-  }, [offshoreEfforts, onsiteEfforts]);
-
-  const totalPlannedEffort = useMemo(() => {
-    const offshore = Object.values(offshoreEfforts).reduce((s, c) => s + (c.planned || 0), 0);
-    const onsite = Object.values(onsiteEfforts).reduce((s, c) => s + (c.planned || 0), 0);
-    return offshore + onsite;
-  }, [offshoreEfforts, onsiteEfforts]);
+  const totalActualEffort = getTotalCumulativeEffort();
+  const totalPlannedEffort = getTotalPlannedEffort();
 
   const effortVariance = totalPlannedEffort ? ((totalActualEffort - totalPlannedEffort) / totalPlannedEffort * 100).toFixed(1) : 0;
   const approvedEffort = projectInfo.estimatedEffort * 0.9;

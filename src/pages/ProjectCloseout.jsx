@@ -131,8 +131,8 @@ const PerformanceMetricsSection = memo(({ data, onChange }) => {
         <div><label className="text-xs text-gray-500">Budgeted Cost ($)</label><InputField type="number" value={data.budgetedCost ?? ''} onChange={(e) => onChange('budgetedCost', parseFloat(e.target.value) || 0)} /></div>
         <div><label className="text-xs text-gray-500">Actual Cost ($)</label><InputField type="number" value={data.actualCost ?? ''} onChange={(e) => onChange('actualCost', parseFloat(e.target.value) || 0)} /></div>
         <div><label className="text-xs text-gray-500">Cost Variance (%)</label><p className="font-medium">{costVariance}%</p></div>
-        <div><label className="text-xs text-gray-500">Schedule Variance (%)</label><InputField type="number" value={data.scheduleVariance ?? 0} onChange={(e) => onChange('scheduleVariance', parseFloat(e.target.value) || 0)} /></div>
-        <div><label className="text-xs text-gray-500">Effort Variance (%)</label><InputField type="number" value={data.effortVariance ?? 0} onChange={(e) => onChange('effortVariance', parseFloat(e.target.value) || 0)} /></div>
+        <div><label className="text-xs text-gray-500">Schedule Variance</label><InputField type="number" value={data.scheduleVariance ?? 0} onChange={(e) => onChange('scheduleVariance', parseFloat(e.target.value) || 0)} /></div>
+        <div><label className="text-xs text-gray-500">Effort Variance</label><InputField type="number" value={data.effortVariance ?? 0} onChange={(e) => onChange('effortVariance', parseFloat(e.target.value) || 0)} /></div>
         <div><label className="text-xs text-gray-500">Resource Utilization</label><InputField value={data.resourceUtilization || ''} onChange={(e) => onChange('resourceUtilization', e.target.value)} /></div>
         <div><label className="text-xs text-gray-500">Overdue Tasks/Cross Deadlines</label><InputField type="number" value={data.overdueTasks ?? 0} onChange={(e) => onChange('overdueTasks', parseFloat(e.target.value) || 0)} /></div>
         <div><label className="text-xs text-gray-500">Tasks % completed on time</label><InputField type="number" value={data.tasksCompletedOnTimePercent ?? 0} onChange={(e) => onChange('tasksCompletedOnTimePercent', parseFloat(e.target.value) || 0)} /></div>
@@ -155,9 +155,22 @@ const ProjectCloseoutPage = () => {
   }, []);
 
   const handleSave = useCallback(() => {
-    updateCloseout(formData);
-    alert('Closeout data saved successfully!');
-  }, [formData, updateCloseout]);
+  const costVariance =
+    formData.budgetedCost
+      ? (
+          ((formData.actualCost - formData.budgetedCost) /
+            formData.budgetedCost) *
+          100
+        ).toFixed(1)
+      : 0;
+
+  updateCloseout({
+    ...formData,
+    costVariance,
+  });
+
+  alert("Closeout data saved successfully!");
+}, [formData, updateCloseout]);
 
   // KPI definitions (matching workbook)
   const planningKpis = [

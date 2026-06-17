@@ -144,12 +144,28 @@ export const createPsrSlice = (set, get) => ({
   },
 
   getActualOffshoreFTEs: () => {
-    const offshore = Object.values(get().offshoreEfforts).reduce((s, e) => s + e.cumulativeActual, 0);
-    return (offshore / 8).toFixed(2);
+    const summary = get().getResourceTotalsByType();
+
+    const total = Object.values(summary)
+      .reduce(
+        (sum, item) =>
+          sum + (Number(item.offshoreActual) || 0),
+        0
+      );
+
+    return (total / 8).toFixed(2);
   },
 
   getActualOnsiteFTEs: () => {
-    const onsite = Object.values(get().onsiteEfforts).reduce((s, e) => s + e.cumulativeActual, 0);
-    return (onsite / 8).toFixed(2);
+    const summary = get().getResourceTotalsByType();
+
+    const total = Object.values(summary)
+      .reduce(
+        (sum, item) =>
+          sum + (Number(item.onsiteActual) || 0),
+        0
+      );
+
+    return (total / 8).toFixed(2);
   },
 });

@@ -637,15 +637,16 @@ export const exportToExcel = async () => {
         { row: 90, col: 3, val: co.bestPracticesContributions },
         { row: 94, col: 2, val: co.budgetedCost },
         { row: 95, col: 2, val: co.actualCost },
+        { row: 96, col: 2, val: co.costVariance },
         { row: 100, col: 2, val: co.resourceUtilization },
         { row: 101, col: 2, val: co.overdueTasks },
-        { row: 102, col: 2, val: co.tasksCompletedOnTimePercent },
+        { row: 102, col: 2, val: co.tasksCompletedOnTimePercent/100 },
         { row: 103, col: 2, val: co.defectsSIT },
         { row: 104, col: 2, val: co.defectsUAT },
         { row: 105, col: 2, val: co.customerSatisfactionScore },
         { row: 106, col: 2, val: co.lastAuditScore },
-        { row: 97, col: 2, val: co.scheduleVariance },
-        { row: 99, col: 2, val: co.effortVariance },
+        { row: 97, col: 2, val: co.scheduleVariance/100 },
+        { row: 99, col: 2, val: co.effortVariance/100 },
       ];
 
       const planningKPIs = [

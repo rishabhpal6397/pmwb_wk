@@ -14,7 +14,9 @@ import { PATTERNS } from '../utils/constants';
 import { useFormValidation } from '../utils/useFormValidation';
 
 const ProjectInfoPage = () => {
-  const { projectInfo, projectExtended, updateProjectInfo, updateProjectExtended, versionHistory, addVersionEntry, updateVersionEntry, removeVersionEntry, offshoreEfforts, onsiteEfforts } = useAppStore();
+  const { projectInfo, projectExtended, updateProjectInfo, updateProjectExtended, versionHistory, addVersionEntry, updateVersionEntry, removeVersionEntry, offshoreEfforts, onsiteEfforts, getTotalCumulativeEffort,
+  getTotalPlannedEffort,getActualOffshoreFTEs,
+  getActualOnsiteFTEs, } = useAppStore();
 
   const [toast, setToast] = React.useState(null);
   const [deleteConfirm, setDeleteConfirm] = React.useState({ isOpen: false, index: null });
@@ -69,22 +71,22 @@ const ProjectInfoPage = () => {
     updateProjectExtended({ [name]: value });
   };
 
-  const actualEffortConsumed = useMemo(() => {
-    const offshoreActual = Object.values(offshoreEfforts).reduce((sum, cat) => sum + (cat.actual || 0), 0);
-    const onsiteActual = Object.values(onsiteEfforts).reduce((sum, cat) => sum + (cat.actual || 0), 0);
-    return offshoreActual + onsiteActual;
-  }, [offshoreEfforts, onsiteEfforts]);
+  const actualEffortConsumed = getTotalCumulativeEffort();
 
   const approvedEffort = useMemo(() => (projectInfo.estimatedEffort * 0.9).toFixed(2), [projectInfo.estimatedEffort]);
   const remainingEffort = approvedEffort - actualEffortConsumed;
-  const actualOnsiteFTEs = useMemo(() => {
-    const onsiteActual = Object.values(onsiteEfforts).reduce((sum, cat) => sum + (cat.actual || 0), 0);
-    return (onsiteActual / 8).toFixed(2);
-  }, [onsiteEfforts]);
-  const actualOffshoreFTEs = useMemo(() => {
-    const offshoreActual = Object.values(offshoreEfforts).reduce((sum, cat) => sum + (cat.actual || 0), 0);
-    return (offshoreActual / 8).toFixed(2);
-  }, [offshoreEfforts]);
+
+  const actualOnsiteFTEs = getActualOnsiteFTEs();
+  // useMemo(() => {
+  //   const onsiteActual = Object.values(onsiteEfforts).reduce((sum, cat) => sum + (cat.cumulativeActual || 0), 0);
+  //   return (onsiteActual / 8).toFixed(2);
+  // }, [onsiteEfforts]);
+
+  const actualOffshoreFTEs = getActualOffshoreFTEs();
+  // useMemo(() => {
+  //   const offshoreActual = Object.values(offshoreEfforts).reduce((sum, cat) => sum + (cat.cumulativeActual || 0), 0);
+  //   return (offshoreActual / 8).toFixed(2);
+  // }, [offshoreEfforts]);
 
   const versionColumns = [
     { field: 'date', header: 'Date', editable: true, type: 'date' },
