@@ -1,4 +1,4 @@
-// src/store/useAppStore.js
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createUiSlice } from './slices/uiSlice';
@@ -35,10 +35,10 @@ export const useAppStore = create(
     }),
     {
       name: 'pmo-workbench-storage',
-      version: 2,                 // ✅ increment version when store structure changes
+      version: 2,              
       migrate: (persistedState, version) => {
         if (version < 2) {
-          // Reset the store when upgrading from older version
+         
           return {};
         }
         return persistedState;

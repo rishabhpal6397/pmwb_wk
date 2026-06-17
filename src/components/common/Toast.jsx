@@ -1,4 +1,4 @@
-// src/components/common/Toast.jsx
+
 import React, { useEffect } from 'react';
 
 const Toast = ({ message, type = 'success', onClose, duration = 3000 }) => {

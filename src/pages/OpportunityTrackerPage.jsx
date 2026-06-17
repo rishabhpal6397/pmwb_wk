@@ -1,4 +1,4 @@
-// src/pages/opportunities/OpportunityPage.jsx
+
 import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../store/useAppstore';
 import PageHeader from '../components/layout/PageHeader';
@@ -9,7 +9,7 @@ import SelectField from '../components/forms/SelectField';
 import TextAreaField from '../components/forms/TextAreaField';
 import { STATUS_OPTIONS, EXTERNAL_INTERNAL_OPTIONS, PROCESS_OPTIONS, OWNER_OPTIONS } from '../data/dropdownOptions';
 
-// ── Helpers ──────────────────────────────────────────────────────────────
+//  Helpers 
 const statusColors = {
   'Open': 'bg-blue-100 text-blue-800',
   'In Progress': 'bg-yellow-100 text-yellow-800',
@@ -22,7 +22,7 @@ const StatusBadge = ({ status }) => (
   <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[status] || 'bg-gray-100 text-gray-600'}`}>{status}</span>
 );
 
-// ── Opportunity Form (shared across Add/Edit/View) ────────────────────
+//  Opportunity Form (shared across Add/Edit/View) 
 const OpportunityForm = ({ formData, onChange, readOnly = false }) => (
   <div className="space-y-4 max-h-[60vh] overflow-y-auto px-1">
     <div className="grid grid-cols-2 gap-4">
@@ -60,7 +60,7 @@ const OpportunityForm = ({ formData, onChange, readOnly = false }) => (
   </div>
 );
 
-// ── Column Definitions ──────────────────────────────────────────────────
+//  Column Definitions 
 const COLUMNS = [
   { key: 'serialNo', label: 'No.', width: 'w-20', sticky: true, left: 0 },
   { key: 'dateIdentified', label: 'Date Identified', width: 'w-28', sticky: true, left: 80 },
@@ -81,7 +81,7 @@ const COLUMNS = [
   { key: 'actions', label: 'Actions', width: 'w-24', align: 'center' },
 ];
 
-// ── Main Component ──────────────────────────────────────────────────────
+//  Main Component 
 const OpportunityTrackerPage = () => {
   const { opportunities = [], addOpportunity, updateOpportunity, removeOpportunity } = useAppStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -149,7 +149,7 @@ const OpportunityTrackerPage = () => {
     return { total, open, completed, totalCost, totalRevenue };
   }, [opportunities]);
 
-  // ── Card config ──
+  //  Card config 
   const cards = [
     { label: 'Total Opportunities', value: stats.total, color: 'blue' },
     { label: 'Open / In Progress', value: stats.open, color: 'orange' },
@@ -158,7 +158,7 @@ const OpportunityTrackerPage = () => {
     { label: 'Revenue Benefit', value: `$${stats.totalRevenue.toLocaleString()}`, color: 'orange' },
   ];
 
-  // ── Render helpers ──
+  //  Render helpers 
   const renderCell = (opp, col) => {
     if (col.key === 'actions') {
       return (

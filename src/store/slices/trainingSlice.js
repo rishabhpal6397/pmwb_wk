@@ -1,4 +1,4 @@
-// src/store/slices/trainingSlice.js
+
 
 const createTrainingState = () => ({
   trainings: [],

@@ -28,7 +28,7 @@ const Navbar = () => {
           ☰
         </button>
         <h1 className="text-lg font-semibold text-gray-800">
-          PMWB – {projectInfo?.name || 'Project Dashboard'}
+          PMWB - {projectInfo?.name || 'Project Dashboard'}
         </h1>
       </div>
 

@@ -1,4 +1,4 @@
-// src/store/slices/opportunitySlice.js
+
 export const createOpportunitySlice = (set, get) => ({
   opportunities: [],
   
@@ -10,7 +10,7 @@ export const createOpportunitySlice = (set, get) => ({
     set((state) => ({
       opportunities: [...state.opportunities, newOpportunity],
     }));
-    return newOpportunity; // optional
+    return newOpportunity; 
   },
 
   updateOpportunity: (id, updates) => {
@@ -27,7 +27,7 @@ export const createOpportunitySlice = (set, get) => ({
     }));
   },
 
-  // helper selectors (keep as they are)
+  
   getOpportunitiesByStatus: (status) => {
     return (get().opportunities || []).filter((opp) => opp.status === status);
   },

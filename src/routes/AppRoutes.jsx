@@ -50,7 +50,7 @@ const AppRoutes = () => {
         <Route path="/performance"       element={<PerformanceMetricsPage />} />
       </Route>
 
-      {/* Fallback */}
+    
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

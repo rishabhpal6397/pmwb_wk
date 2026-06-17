@@ -1,4 +1,4 @@
-// src/store/slices/projectSlice.js
+
 
 export const createProjectSlice = (set, get) => ({
   projectInfo: {
@@ -35,7 +35,7 @@ export const createProjectSlice = (set, get) => ({
     initialSize: 0,
     sizeUnit: '',
   },
-  // Hardcoded phases from workbook (Control Panel sheet)
+
   phases: [
     { id: 1, phase: 'Analysis and Design-Rel1', estimatedStart: '', estimatedEnd: '', baselinedStart: '', baselinedEnd: '', actualStart: '', actualEnd: '', estimatedEffort: 0, revisedEffort: 0, actualEffort: 0, status: 'Not started', customerDeliverable: false, remarks: '' },
     { id: 2, phase: 'Development and Unit Testing-Rel-1', estimatedStart: '', estimatedEnd: '', baselinedStart: '', baselinedEnd: '', actualStart: '', actualEnd: '', estimatedEffort: 0, revisedEffort: 0, actualEffort: 0, status: 'Not started', customerDeliverable: false, remarks: '' },
@@ -63,7 +63,7 @@ export const createProjectSlice = (set, get) => ({
     versionHistory: state.versionHistory.filter((_, i) => i !== index),
   })),
 
-  // Helper for cumulative efforts
+
   getCumulativeEfforts: () => {
     let cumEst = 0, cumRev = 0, cumAct = 0;
     return get().phases.map(phase => {

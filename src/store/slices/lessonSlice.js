@@ -1,4 +1,4 @@
-// src/store/slices/lessonSlice.js
+
 
 const createDefaultLesson = () => ({
   id: '',

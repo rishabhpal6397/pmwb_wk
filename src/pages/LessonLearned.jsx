@@ -1,4 +1,4 @@
-// src/pages/lessons/LessonLearnedPage.jsx
+
 import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../store/useAppstore';
 import PageHeader from '../components/layout/PageHeader';
@@ -8,13 +8,13 @@ import InputField from '../components/forms/InputField';
 import SelectField from '../components/forms/SelectField';
 import TextAreaField from '../components/forms/TextAreaField';
 
-// ========== Dropdown Options ==========
+//  Dropdown Options 
 const WIN_ISSUE_OPTIONS = [
   { value: 'Win', label: 'Win' },
   { value: 'Issue', label: 'Issue' },
 ];
 
-// ========== Helper Components ==========
+//  Helper Components 
 const WinIssueBadge = ({ value }) => {
   if (value === 'Win') {
     return <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Win</span>;
@@ -29,7 +29,7 @@ const SummaryCard = ({ label, value, color }) => (
   </div>
 );
 
-// ========== Default Form Data ==========
+//  Default Form Data 
 const DEFAULT_LESSON = {
   winIssue: 'Win',
   description: '',
@@ -38,7 +38,7 @@ const DEFAULT_LESSON = {
   actionItems: '',
 };
 
-// ========== Main Component ==========
+//  Main Component 
 const LessonLearnedPage = () => {
   const { lessons = [], addLesson, updateLesson, removeLesson } = useAppStore();
   const [isModalOpen, setIsModalOpen] = useState(false);

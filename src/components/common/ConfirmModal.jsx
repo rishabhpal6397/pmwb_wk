@@ -1,4 +1,4 @@
-// src/components/common/ConfirmModal.jsx
+
 import React from 'react';
 import Button from './Button';
 

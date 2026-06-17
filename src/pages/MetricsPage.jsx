@@ -1,4 +1,4 @@
-// src/pages/metrics/MetricsPage.jsx
+
 import React, { useEffect, useMemo, useState } from 'react';
 import { useAppStore } from '../store/useAppstore';
 import PageHeader from '../components/layout/PageHeader';
@@ -14,7 +14,7 @@ const PRIORITY_OPTIONS = [
   { value: 'Low', label: 'Low' },
 ];
 
-// ---- Helper Functions ----
+//  Helper Functions 
 const formatValue = (value, unit) => {
   if (value === null || value === undefined) return 'Not Available';
   if (unit === '%') return `${value.toFixed(2)}%`;
@@ -32,7 +32,7 @@ const getPriorityBadge = (priority) => {
   return classes[priority] || 'bg-gray-100 text-gray-800';
 };
 
-// ---- Field Configurations (shared between add & edit) ----
+//  Field Configurations (shared between add & edit) 
 const FORM_FIELDS = [
   { label: 'ID', name: 'id', type: 'text', required: true, editable: false },
   { label: 'Metric', name: 'metric', type: 'text', required: true, editable: false },
@@ -51,7 +51,7 @@ const FORM_FIELDS = [
   { label: 'Tracking Remarks', name: 'trackingRemarks', type: 'textarea', rows: 2, editable: true },
 ];
 
-// ---- Table Column Configuration with sticky properties ----
+//  Table Column Configuration with sticky properties 
 const COLUMNS = [
   { key: 'id', label: 'ID', width: 'w-16', sticky: true, left: 0 },
   { key: 'objective', label: 'Objective', width: 'w-64', sticky: true, left: 64 },
@@ -78,7 +78,7 @@ const MetricsPage = () => {
   const [editingMetric, setEditingMetric] = useState(null);
   const [formData, setFormData] = useState({});
 
-  // ---- Stats ----
+  //  Stats 
   const stats = useMemo(() => {
     const total = metricsList.length;
     const onTrack = metricsList.filter(m => {
@@ -95,12 +95,12 @@ const MetricsPage = () => {
     return { total, onTrack, atRisk, noData };
   }, [metricsList]);
 
-  // ---- Effects ----
+  //  Effects 
   useEffect(() => {
     calculateAllMetrics();
   }, [calculateAllMetrics, projectInfo, projectSize]);
 
-  // ---- Handlers ----
+  //  Handlers 
   const openModal = (metric = null) => {
     setEditingMetric(metric);
     setFormData(metric
@@ -143,7 +143,7 @@ const MetricsPage = () => {
     setIsModalOpen(false);
   };
 
-  // ---- Render helpers ----
+  //  Render helpers 
   const renderField = (field) => {
     const commonProps = {
       key: field.name,
@@ -164,7 +164,6 @@ const MetricsPage = () => {
     return <InputField {...commonProps} type={field.type || 'text'} step={field.step} disabled={isDisabled} />;
   };
 
-  // ---- JSX ----
   return (
     <div className="space-y-6">
       <PageHeader
@@ -214,7 +213,7 @@ const MetricsPage = () => {
               {metricsList.map(metric => (
                 <tr key={metric.id} className="hover:bg-gray-50">
                   {COLUMNS.map(col => {
-                    // --- Render actions column ---
+                    //  Render actions column 
                     if (col.key === 'actions') {
                       return (
                         <td
@@ -226,7 +225,7 @@ const MetricsPage = () => {
                       );
                     }
 
-                    // --- Render priority badge ---
+                    //  Render priority badge 
                     if (col.key === 'priority') {
                       return (
                         <td
@@ -240,7 +239,7 @@ const MetricsPage = () => {
                       );
                     }
 
-                    // --- Render current value with color ---
+                    // Render current value with color 
                     if (col.key === 'currentValue') {
                       const isVariance = metric.metric?.includes('Variation');
                       const isRed =
@@ -257,7 +256,7 @@ const MetricsPage = () => {
                       );
                     }
 
-                    // --- Regular cells with sticky support ---
+                    //  Regular cells with sticky support 
                     const val = metric[col.key];
                     const displayVal = val === null || val === undefined ? '-' : val;
                     return (

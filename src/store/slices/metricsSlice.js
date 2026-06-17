@@ -1,4 +1,4 @@
-// src/store/slices/metricsSlice.js
+
 
 const createDefaultMetric = () => ({
   id: '',
@@ -261,7 +261,7 @@ export const createMetricsSlice = (set, get) => ({
     const currentSize = projectSize?.current || 0;
     const productivity = actualEffort > 0 ? currentSize / actualEffort : null;
 
-    // 6. Weighted Defect Density (simplified - integrate with verification data later)
+    // 6. Weighted Defect Density
     const weightedDefectDensity = null;
 
     // 7. Review Efficiency (simplified)
@@ -269,11 +269,7 @@ export const createMetricsSlice = (set, get) => ({
 
     // 8. Defect Removal Efficiency (simplified)
     const defectRemovalEfficiency = null;
-// src/store/slices/metricsSlice.js - Add this function inside createMetricsSlice
 
-    
-
-// Also add deleteMetric if needed
 
     // Update all metrics
     set((state) => ({

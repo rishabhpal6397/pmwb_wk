@@ -1,4 +1,4 @@
-// src/store/slices/performanceSlice.js
+
 
 const createDefaultPerformance = () => ({
   id: '',
@@ -21,7 +21,7 @@ export const createPerformanceSlice = (set, get) => ({
   performanceMetrics: [],
 
   addPerformanceMetric: (metric) => {
-    // Calculate derived fields
+   
     let onTimeCompletionPercent = 0;
     if (metric.tasksAllotted > 0 && metric.tasksCompletedOnTime > 0) {
       onTimeCompletionPercent = (metric.tasksCompletedOnTime / metric.tasksAllotted) * 100;
@@ -70,8 +70,7 @@ export const createPerformanceSlice = (set, get) => ({
     }));
   },
 
-  // Helper selectors
-  getMetricsByRole: (role) => {
+    getMetricsByRole: (role) => {
     return get().performanceMetrics.filter((m) => m.role === role);
   },
   getAverageOnTimeCompletion: () => {

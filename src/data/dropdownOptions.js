@@ -1,4 +1,4 @@
-// src/data/dropdownOptions.js
+
 
 export const projectStatusOptions = [
   { value: 'Not Started', label: 'Not Started' },
@@ -7,7 +7,7 @@ export const projectStatusOptions = [
   { value: 'On Hold', label: 'On Hold' },
 ];
 
-// ========== Risk Management Options ==========
+// Risk Management Options 
 export const riskCategoryOptions = [
   { value: 'Process or Method', label: 'Process or Method' },
   { value: 'People or Man', label: 'People or Man' },
@@ -82,7 +82,7 @@ export const externalInternalOptions = [
   { value: 'External (Impacts Customer)', label: 'External (Impacts Customer)' },
 ];
 
-// ========== Resource Page Options ==========
+//  Resource Page Options 
 export const RESOURCE_LEVELS = [
   { value: 'L1', label: 'L1' }, { value: 'L2', label: 'L2' }, { value: 'L3', label: 'L3' },
   { value: 'L4', label: 'L4' }, { value: 'L5', label: 'L5' }, { value: 'L6', label: 'L6' },
@@ -111,7 +111,7 @@ export const RESOURCE_AVAILABILITY_STATUS = [
 
 
 // Verification Data options
-// ========== Dropdown Options ==========
+//  Dropdown Options 
 export const PHASE_OPTIONS = [
   { value: 'Analysis and Design', label: 'Analysis and Design' },
   { value: 'Coding and unit testing', label: 'Coding and unit testing' },
@@ -138,7 +138,7 @@ export const TYPE_OPTIONS = [
 ];
 
 
-// ==========Opportunty Tracker Dropdown Options (unchanged) ==========
+// Opportunty Tracker Dropdown Options (unchanged) 
 export const STATUS_OPTIONS = [
   { value: 'Open', label: 'Open' },
   { value: 'In Progress', label: 'In Progress' },
@@ -249,7 +249,7 @@ export const infotypeOptions = [
 ];
 
 
-// ==========Performance Metrics Page Dropdown Options ==========
+// Performance Metrics Page Dropdown Options 
 export const PERFORMANCE_ROLE_OPTIONS = [
   { value: 'DM', label: 'DM (Delivery Manager)' },
   { value: 'PM', label: 'PM (Project Manager)' },

@@ -1,10 +1,10 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 
-// ─── Storage keys ─────────────────────────────────────────────────────────────
+// Storage keys
 const USERS_KEY   = 'pmwb_users';
 const SESSION_KEY = 'pmwb_session';
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// Helpers 
 function getSession() {
   try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }
   catch { return null; }
@@ -19,14 +19,14 @@ function saveUsers(users) {
   localStorage.setItem(USERS_KEY, JSON.stringify(users));
 }
 
-// ─── Validation (regex) ───────────────────────────────────────────────────────
+//  Validation (regex) 
 export const REGEX = {
   email:    /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
   username: /^[a-zA-Z0-9_]{3,20}$/,
 };
 
-// ─── Context ──────────────────────────────────────────────────────────────────
+//  Context 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {

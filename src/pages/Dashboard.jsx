@@ -44,7 +44,7 @@ const Dashboard = () => {
     isExporting
   } = useAppStore();
 
-  // --- Derived stats with useMemo ---
+  //  Derived stats with useMemo 
   const stats = useMemo(() => {
     const totalActual = getTotalCumulativeEffort();
     const totalPlanned = getTotalPlannedEffort();
@@ -64,7 +64,7 @@ const Dashboard = () => {
     };
   }, [resources, risks, issues, phases, projectInfo.estimatedEffort, getTotalCumulativeEffort, getTotalPlannedEffort]);
 
-  // --- Card configs ---
+  //  Card configs 
   const summaryCards = [
     { title: 'Project Status', value: projectInfo.status || 'Not Started', icon: '📋', color: projectInfo.status === 'In Progress' ? 'blue' : projectInfo.status === 'Completed' ? 'green' : 'yellow' },
     { label: 'Total Resources', value: stats.totalResources, unit: 'members' },

@@ -1,13 +1,11 @@
-// src/store/slices/riskSlice.js
 
-// Helper: ensure value is a number
 const toNumber = (val) => {
   if (typeof val === 'number' && !isNaN(val)) return val;
   const num = parseFloat(val);
   return isNaN(num) ? 0 : num;
 };
 
-// Helper: calculate normalized impact (average of 5 impacts)
+// Helper: calculate  impact (average of 5 impacts)
 const calcNormalizedImpact = (cost, schedule, scope, quality, regulatory) => {
   const impacts = [toNumber(cost), toNumber(schedule), toNumber(scope), toNumber(quality), toNumber(regulatory)];
   const valid = impacts.filter(v => v !== undefined && v !== null && !isNaN(v));
@@ -24,7 +22,7 @@ const calcRiskIndex = (probability, normalizedImpact) => {
   return prob * impact;
 };
 
-// Default risk object (all fields from workbook)
+// Default risk object 
 const createDefaultRisk = () => ({
   id: '',
   dateIdentified: new Date().toISOString().split('T')[0],
@@ -37,7 +35,7 @@ const createDefaultRisk = () => ({
   relevance: 'QMS',
   owner: 'Project Manager',
   
-  // Initial assessment (without controls)
+  // Initial assessment 
   initialProbability: 0.5,
   initialImpactCost: 3,
   initialImpactSchedule: 3,
@@ -47,7 +45,7 @@ const createDefaultRisk = () => ({
   initialNormalizedImpact: 0,
   initialRiskIndex: 0,
   
-  // Current assessment (with controls)
+  // Current assessment 
   currentProbability: 0.5,
   currentImpactCost: 3,
   currentImpactSchedule: 3,

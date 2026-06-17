@@ -1,4 +1,4 @@
-// src/components/common/Modal.jsx
+
 import React, { useEffect, useRef } from 'react';
 import Button from './Button';
 

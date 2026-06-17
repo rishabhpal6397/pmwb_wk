@@ -1,4 +1,4 @@
-// src/store/slices/verificationSlice.js
+
 
 const createDefaultVerificationEntry = () => ({
   id: '',

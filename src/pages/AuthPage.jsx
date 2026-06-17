@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, REGEX } from '../context/AuthContext';
 
-// ─── Validation ───────────────────────────────────────────────────────────────
+//  Validation 
 
 function validateLogin(email, password) {
   const errors = {};
@@ -25,7 +25,7 @@ function validateRegister(username, email, password, confirm) {
   return errors;
 }
 
-// ─── Reusable field ───────────────────────────────────────────────────────────
+//  Reusable field 
 
 function Field({ label, type = 'text', value, onChange, error, placeholder }) {
   const [show, setShow] = useState(false);
@@ -61,7 +61,7 @@ function Field({ label, type = 'text', value, onChange, error, placeholder }) {
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+//  Page 
 
 const AuthPage = () => {
   const navigate = useNavigate();

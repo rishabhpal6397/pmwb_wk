@@ -1,4 +1,4 @@
-// src/pages/performance/PerformanceMetricsPage.jsx
+
 import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../store/useAppstore';
 import PageHeader from '../components/layout/PageHeader';
@@ -9,7 +9,7 @@ import SelectField from '../components/forms/SelectField';
 import TextAreaField from '../components/forms/TextAreaField';
 import {PERFORMANCE_ROLE_OPTIONS} from '../data/dropdownOptions';
 
-// ========== Helper Components ==========
+//  Helper Components 
 const SummaryCard = ({ label, value, color }) => (
   <div className={`bg-gradient-to-r from-${color}-500 to-${color}-600 text-white p-4 rounded-lg shadow`}>
     <p className="text-sm opacity-90">{label}</p>
@@ -31,7 +31,7 @@ const PerformanceBadge = ({ value, type }) => {
   return <span>{value}</span>;
 };
 
-// ========== Default Form Data ==========
+//  Default Form Data 
 const DEFAULT_METRIC = {
   resourceName: '',
   role: 'Developer',
@@ -46,7 +46,7 @@ const DEFAULT_METRIC = {
   customerComplaints: '',
 };
 
-// ========== Main Component ==========
+//  Main Component 
 const PerformanceMetricsPage = () => {
   const { performanceMetrics = [], addPerformanceMetric, updatePerformanceMetric, removePerformanceMetric } = useAppStore();
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -1,4 +1,4 @@
-// src/store/slices/resourceSlice.js
+
 
 export const createResourceSlice = (set, get) => ({
   resources: [],
@@ -21,7 +21,7 @@ export const createResourceSlice = (set, get) => ({
     }));
   },
 
-  // Summaries (derived, no mutation)
+  // Summaries
   getResourceTotalsByType: () => {
     const { resources } = get();
     const summary = {};

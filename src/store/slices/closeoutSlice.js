@@ -1,4 +1,4 @@
-// src/store/slices/closeoutSlice.js
+
  
 const createDefaultCloseout = () => ({
   // Basic info
@@ -61,7 +61,7 @@ const createDefaultCloseout = () => ({
   bestPractices: '',
   ineffectivePractices: '',
   bestPracticesContributions: '',
-  // Project Performance (numeric)
+  // Project Performance 
   budgetedCost: 0,
   actualCost: 0,
   costVariance: 0,

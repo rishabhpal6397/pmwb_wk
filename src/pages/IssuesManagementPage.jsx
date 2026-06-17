@@ -1,4 +1,4 @@
-// src/pages/issues/IssueManagementPage.jsx
+
 import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../store/useAppstore';
 import PageHeader from '../components/layout/PageHeader';
@@ -28,7 +28,7 @@ const OverdueIndicator = ({ targetDate, status }) => {
   return targetDate < today ? <span className="ml-2 text-xs text-red-600 font-medium">(Overdue)</span> : null;
 };
 
-// Reusable Issue Form Component (used in both Add/Edit and View modals)
+// Reusable Issue Form Component
 const IssueForm = ({ formData, onChange, readOnly = false }) => (
   <div className="space-y-4 max-h-[60vh] overflow-y-auto px-1">
     <div className="grid grid-cols-2 gap-4">
@@ -112,7 +112,7 @@ const IssueManagementPage = () => {
     return { total, open, closed, overdue };
   }, [issues]);
 
-  // Column width classes (simplified)
+  // Column width classes
   const colClasses = {
     serialNo: 'w-20 left-0 border-r',
     description: ' min-w-[180px] w-[180px]  left-20  border-r',
