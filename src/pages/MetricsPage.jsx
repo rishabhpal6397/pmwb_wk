@@ -194,7 +194,7 @@ const MetricsPage = () => {
       <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto" style={{ maxHeight: 'calc(100vh - 300px)', overflowY: 'auto' }}>
           <table className="min-w-max divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-100 sticky top-0 z-10">
+            <thead className="bg-gray-100 sticky top-0 z-50">
               <tr>
                 {COLUMNS.map(col => (
                   <th
